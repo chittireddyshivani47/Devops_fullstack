@@ -1,0 +1,105 @@
+name: Personal Finance Tracker CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  test-dashboard:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install Dependencies
+        run: |
+          cd dashboard
+          npm install
+
+      - name: Run Tests
+        run: |
+          cd dashboard
+          npm test
+
+      - name: Upload Dashboard Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: dashboard-results
+          path: dashboard/coverage
+
+  test-expenses:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install Dependencies
+        run: |
+          cd expenses
+          npm install
+
+      - name: Run Tests
+        run: |
+          cd expenses
+          npm test
+
+      - name: Upload Expenses Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: expenses-results
+          path: expenses/coverage
+
+  test-income:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install Dependencies
+        run: |
+          cd income
+          npm install
+
+      - name: Run Tests
+        run: |
+          cd income
+          npm test
+
+      - name: Upload Income Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: income-results
+          path: income/coverage
+
+  build:
+    runs-on: ubuntu-latest
+    needs:
+      - test-dashboard
+      - test-expenses
+      - test-income
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build Application
+        run: echo "Building complete application..."
